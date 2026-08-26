@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Reservar turno — {{ business.nombre }}{% endblock %}
+{% block content %}
+
+<section class="booking">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Reserva de turno</div>
+      <h2>Elegí servicio, día y horario</h2>
+    </div>
+
+    <div class="steps">
+      <div class="step active" id="step-label-1">1. Servicio</div>
+      <div class="step" id="step-label-2">2. Día y hora</div>
+      <div class="step" id="step-label-3">3. Tus datos</div>
+    </div>
+
+    <form id="booking-form" method="POST" action="/api/turnos">
+      <input type="hidden" name="servicio_id" id="input-servicio">
+      <input type="hidden" name="fecha" id="input-fecha">
+      <input type="hidden" name="hora" id="input-hora">
+
+      <!-- PASO 1: SERVICIO -->
+      <div id="panel-1">
+        <div class="svc-pick">
+          {% for s in services %}
+          <div class="svc-option" data-id="{{ s.id }}" data-nombre="{{ s.nombre }}" data-precio="{{ s.precio }}">
+            <h4>{{ s.nombre }}</h4>
+            <div class="d">{{ s.duracion_min }} min</div>
+            <div class="p">${{ "{:,}".format(s.precio).replace(",", ".") }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- PASO 2: DIA Y HORA -->
+      <div id="panel-2" style="display:none; margin-top:36px;">
+        <h3 style="font-size:16px; margin-bottom:14px;">Elegí el día</h3>
+        <div class="day-picker">
+          {% for d in dias %}
+          <div class="day-chip" data-fecha="{{ d.isoformat() }}">
+            <div class="d1">{{ d.strftime('%a') }}</div>
+            <div class="d2">{{ d.strftime('%d') }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        <h3 style="font-size:16px; margin:24px 0 8px;">Horarios disponibles</h3>
+        <div class="slot-grid" id="slot-grid">
+          <div class="empty-state" style="grid-column:1/-1;">Elegí un día para ver los horarios</div>
+        </div>
+      </div>
+
+      <!-- PASO 3: DATOS -->
+      <div id="panel-3" style="display:none; margin-top:36px;">
+        <div class="form-block">
+          <label for="nombre">Nombre y apellido</label>
+          <input type="text" id="nombre" name="nombre" required>
+          <label for="telefono">Teléfono / WhatsApp</label>
+          <input type="tel" id="telefono" name="telefono" required placeholder="11 xxxx xxxx">
+          <label for="notas">Notas (opcional)</label>
+          <textarea id="notas" name="notas" rows="3" placeholder="Alguna preferencia para tu corte..."></textarea>
+        </div>
+      </div>
+
+      <div class="summary-bar">
+        <div class="txt" id="summary-text">Elegí un servicio para continuar</div>
+        <button type="button" class="btn btn-ghost" id="btn-back" style="display:none;">← Atrás</button>
+        <button type="button" class="btn btn-primary" id="btn-next" disabled>Continuar →</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script src="/static/js/booking.js"></script>
+{% endblock %}

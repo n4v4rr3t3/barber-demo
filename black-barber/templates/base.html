@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{{ business.nombre }}{% endblock %}</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="pole-stripe"></div>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="brand"><b>BLACK</b> BARBER</a>
+      <a href="/reservar" class="nav-cta">Reservar turno</a>
+    </div>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <footer>
+    <div class="wrap">
+      <span>&copy; {{ business.nombre }} — {{ business.direccion }}</span>
+      <span>Demo comercial — desarrollado por un dev independiente en Palermo</span>
+    </div>
+  </footer>
+
+  <a class="wa-float" href="https://wa.me/{{ business.whatsapp }}" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">☎</a>
+</body>
+</html>

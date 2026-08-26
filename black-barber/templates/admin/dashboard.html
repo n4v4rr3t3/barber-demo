@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel — {{ business.nombre }}</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="pole-stripe"></div>
+  <div class="admin-topbar">
+    <div class="wrap">
+      <a href="/" class="brand"><b>BLACK</b> BARBER · Panel</a>
+      <span class="mono" style="color:var(--muted); font-size:13px;">{{ total_turnos }} turnos totales</span>
+    </div>
+  </div>
+
+  <div class="admin-body">
+    <div class="wrap">
+      <form class="admin-filters" method="GET" action="/admin">
+        <input type="date" name="fecha" value="{{ fecha }}">
+        <button type="submit">Ver día</button>
+        <a href="/admin?fecha={{ hoy }}" class="btn btn-ghost" style="padding:9px 14px; font-size:14px;">Hoy</a>
+      </form>
+
+      <div class="stat-row">
+        <div class="stat"><div class="n">{{ turnos|length }}</div><div class="l">Turnos ese día</div></div>
+        <div class="stat"><div class="n">{{ turnos|selectattr("estado","equalto","pendiente")|list|length }}</div><div class="l">Pendientes</div></div>
+        <div class="stat"><div class="n">{{ turnos|selectattr("estado","equalto","confirmado")|list|length }}</div><div class="l">Confirmados</div></div>
+        <div class="stat"><div class="n">${{ "{:,}".format(turnos|sum(attribute="precio")).replace(",", ".") }}</div><div class="l">Facturación del día</div></div>
+      </div>
+
+      {% if turnos %}
+      <table class="turnos">
+        <thead>
+          <tr>
+            <th>Hora</th><th>Cliente</th><th>Teléfono</th><th>Servicio</th><th>Precio</th><th>Estado</th><th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in turnos %}
+          <tr>
+            <td class="mono">{{ t.hora }}</td>
+            <td>{{ t.cliente_nombre }}</td>
+            <td class="mono">{{ t.cliente_telefono }}</td>
+            <td>{{ t.servicio_nombre }}</td>
+            <td class="mono">${{ "{:,}".format(t.precio).replace(",", ".") }}</td>
+            <td><span class="badge {{ t.estado }}">{{ t.estado }}</span></td>
+            <td>
+              <div class="row-actions">
+                <form method="POST" action="/admin/turnos/{{ t.id }}/estado">
+                  <input type="hidden" name="fecha" value="{{ fecha }}">
+                  <input type="hidden" name="estado" value="confirmado">
+                  <button type="submit">Confirmar</button>
+                </form>
+                <form method="POST" action="/admin/turnos/{{ t.id }}/estado">
+                  <input type="hidden" name="fecha" value="{{ fecha }}">
+                  <input type="hidden" name="estado" value="completado">
+                  <button type="submit">Completado</button>
+                </form>
+                <form method="POST" action="/admin/turnos/{{ t.id }}/estado">
+                  <input type="hidden" name="fecha" value="{{ fecha }}">
+                  <input type="hidden" name="estado" value="cancelado">
+                  <button type="submit">Cancelar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">No hay turnos para este día</div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

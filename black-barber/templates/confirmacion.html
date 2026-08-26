@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Turno confirmado — {{ business.nombre }}{% endblock %}
+{% block content %}
+
+<section class="confirm-wrap">
+  <div class="claim-ticket">
+    <div class="stamp">RESERVADO</div>
+    <h2>Turno confirmado</h2>
+    <div class="id mono">TICKET Nº{{ "%04d"|format(turno.id) }}</div>
+
+    <dl>
+      <dt>Servicio</dt><dd>{{ turno.servicio_nombre }}</dd>
+      <dt>Fecha</dt><dd>{{ turno.fecha }}</dd>
+      <dt>Hora</dt><dd>{{ turno.hora }} hs</dd>
+      <dt>Cliente</dt><dd>{{ turno.cliente_nombre }}</dd>
+      <dt>Precio</dt><dd class="mono">${{ "{:,}".format(turno.precio).replace(",", ".") }}</dd>
+    </dl>
+
+    <div class="cut"></div>
+
+    <p style="color:var(--muted); font-size:14px;">
+      Te esperamos en {{ business.direccion }}. Si necesitás cambiar el horario, escribinos por WhatsApp mencionando el número de ticket.
+    </p>
+
+    <div class="actions">
+      <a class="btn btn-whatsapp" href="https://wa.me/{{ business.whatsapp }}?text=Hola!%20Soy%20{{ turno.cliente_nombre }}%2C%20mi%20turno%20es%20Nº{{ turno.id }}%20el%20{{ turno.fecha }}%20a%20las%20{{ turno.hora }}" target="_blank">Confirmar por WhatsApp</a>
+      <a class="btn btn-ghost" href="/">Volver al inicio</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

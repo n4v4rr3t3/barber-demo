@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">PALERMO · TURNOS ONLINE 24/7</div>
+    <h1>Cortá camino.<br>Reservá tu <span>turno</span> sin llamar.</h1>
+    <p>Barbería de barrio con estándar de estudio. Elegí servicio, horario y listo — confirmación al instante por WhatsApp.</p>
+    <div class="hero-actions">
+      <a href="/reservar" class="btn btn-primary">Reservar turno →</a>
+      <a href="https://wa.me/{{ business.whatsapp }}" target="_blank" class="btn btn-whatsapp">Escribir por WhatsApp</a>
+    </div>
+    <div class="hero-meta">
+      <div><strong>{{ business.horario }}</strong>Horario</div>
+      <div><strong>{{ business.direccion }}</strong>Ubicación</div>
+      <div><strong>@{{ business.instagram }}</strong>Instagram</div>
+    </div>
+  </div>
+</section>
+
+<div class="pole-stripe"></div>
+
+<section class="section" id="servicios">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Carta de servicios</div>
+      <h2>Elegí tu corte</h2>
+    </div>
+    <div class="services-grid">
+      {% for s in services %}
+      <div class="ticket">
+        <div class="num">SERVICIO Nº{{ loop.index }}</div>
+        <h3>{{ s.nombre }}</h3>
+        <div class="meta">{{ s.duracion_min }} minutos aprox.</div>
+        <div class="ticket-dashed"></div>
+        <div class="price">${{ "{:,}".format(s.precio).replace(",", ".") }}</div>
+        <a class="select" href="/reservar?servicio={{ s.id }}">Reservar este servicio →</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" id="galeria" style="background:var(--panel); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Trabajos recientes</div>
+      <h2>Galería</h2>
+    </div>
+    <div class="gallery-grid">
+      <div>fade + barba</div>
+      <div>corte clásico</div>
+      <div>platinado</div>
+      <div>degradé bajo</div>
+      <div>perfilado</div>
+      <div>experiencia premium</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="ubicacion">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Cómo llegar</div>
+      <h2>Ubicación</h2>
+    </div>
+    <div class="location">
+      <div class="location-card">
+        <dl>
+          <dt>Dirección</dt><dd>{{ business.direccion }}</dd>
+          <dt>Horario</dt><dd>{{ business.horario }}</dd>
+          <dt>WhatsApp</dt><dd><a href="https://wa.me/{{ business.whatsapp }}" target="_blank">Escribir directo →</a></dd>
+          <dt>Instagram</dt><dd><a href="https://instagram.com/{{ business.instagram }}" target="_blank">@{{ business.instagram }} →</a></dd>
+        </dl>
+      </div>
+      <div class="map-frame">
+        <iframe
+          src="https://www.google.com/maps?q={{ business.lat }},{{ business.lng }}&z=15&output=embed"
+          loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
