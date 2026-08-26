@@ -1,7 +1,6 @@
 // Flujo de reserva BLACK BARBER — vanilla JS, sin dependencias.
 (function () {
   const state = { paso: 1, servicio: null, fecha: null, hora: null };
-
   const form = document.getElementById("booking-form");
   const panels = { 1: document.getElementById("panel-1"), 2: document.getElementById("panel-2"), 3: document.getElementById("panel-3") };
   const stepLabels = { 1: document.getElementById("step-label-1"), 2: document.getElementById("step-label-2"), 3: document.getElementById("step-label-3") };
@@ -9,8 +8,6 @@
   const btnBack = document.getElementById("btn-back");
   const summaryText = document.getElementById("summary-text");
   const slotGrid = document.getElementById("slot-grid");
-
-  // preseleccionar servicio si viene por query string (?servicio=corte)
   const params = new URLSearchParams(window.location.search);
   const preseleccion = params.get("servicio");
 
@@ -24,13 +21,14 @@
     el.classList.add("selected");
     state.servicio = { id: el.dataset.id, nombre: el.dataset.nombre, precio: el.dataset.precio };
     document.getElementById("input-servicio").value = state.servicio.id;
+    state.hora = null;
+    document.getElementById("input-hora").value = "";
+    if (state.fecha) cargarHorarios(state.fecha);
     updateSummary();
     btnNext.disabled = false;
   }
 
-  document.querySelectorAll(".day-chip").forEach((el) => {
-    el.addEventListener("click", () => selectDia(el));
-  });
+  document.querySelectorAll(".day-chip").forEach((el) => el.addEventListener("click", () => selectDia(el)));
 
   function selectDia(el) {
     document.querySelectorAll(".day-chip").forEach((o) => o.classList.remove("selected"));
@@ -38,6 +36,7 @@
     state.fecha = el.dataset.fecha;
     state.hora = null;
     document.getElementById("input-fecha").value = state.fecha;
+    document.getElementById("input-hora").value = "";
     cargarHorarios(state.fecha);
     updateSummary();
     btnNext.disabled = true;
@@ -46,7 +45,9 @@
   async function cargarHorarios(fecha) {
     slotGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">Cargando horarios...</div>';
     try {
-      const res = await fetch(`/api/horarios?fecha=${fecha}`);
+      const servicio = state.servicio ? `&servicio_id=${encodeURIComponent(state.servicio.id)}` : "";
+      const res = await fetch(`/api/horarios?fecha=${encodeURIComponent(fecha)}${servicio}`);
+      if (!res.ok) throw new Error("availability");
       const data = await res.json();
       if (!data.disponibles.length) {
         slotGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No hay horarios disponibles ese día</div>';
@@ -75,17 +76,9 @@
   }
 
   function updateSummary() {
-    if (state.paso === 1) {
-      summaryText.innerHTML = state.servicio
-        ? `<b>${state.servicio.nombre}</b> — $${Number(state.servicio.precio).toLocaleString("es-AR")}`
-        : "Elegí un servicio para continuar";
-    } else if (state.paso === 2) {
-      summaryText.innerHTML = state.hora
-        ? `<b>${state.servicio.nombre}</b> · ${state.fecha} a las <b>${state.hora}</b>`
-        : "Elegí día y horario";
-    } else {
-      summaryText.innerHTML = `<b>${state.servicio.nombre}</b> · ${state.fecha} ${state.hora}hs`;
-    }
+    if (state.paso === 1) summaryText.innerHTML = state.servicio ? `<b>${state.servicio.nombre}</b> — $${Number(state.servicio.precio).toLocaleString("es-AR")}` : "Elegí un servicio para continuar";
+    else if (state.paso === 2) summaryText.innerHTML = state.hora ? `<b>${state.servicio.nombre}</b> · ${state.fecha} a las <b>${state.hora}</b>` : "Elegí día y horario";
+    else summaryText.innerHTML = `<b>${state.servicio.nombre}</b> · ${state.fecha} ${state.hora}hs`;
   }
 
   function irAPaso(n) {
@@ -101,22 +94,12 @@
   }
 
   btnNext.addEventListener("click", () => {
-    if (state.paso < 3) {
-      irAPaso(state.paso + 1);
-    } else {
-      const nombre = document.getElementById("nombre").value.trim();
-      const telefono = document.getElementById("telefono").value.trim();
-      if (!nombre || !telefono) {
-        alert("Completá tu nombre y teléfono para confirmar el turno");
-        return;
-      }
-      form.submit();
-    }
+    if (state.paso < 3) return irAPaso(state.paso + 1);
+    const nombre = document.getElementById("nombre").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    if (!nombre || !telefono) return alert("Completá tu nombre y teléfono para confirmar el turno");
+    form.submit();
   });
-
-  btnBack.addEventListener("click", () => {
-    if (state.paso > 1) irAPaso(state.paso - 1);
-  });
-
+  btnBack.addEventListener("click", () => { if (state.paso > 1) irAPaso(state.paso - 1); });
   irAPaso(1);
 })();
